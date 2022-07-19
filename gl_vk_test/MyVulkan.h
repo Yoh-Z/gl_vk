@@ -1,6 +1,8 @@
 #pragma once
 #include <iostream>
 #include <vector>
+#include <optional>
+
 #include <vulkan/vulkan.h>
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -9,14 +11,15 @@ typedef enum vk_info
 {
     MY_VK_SUCCESS = 0,
     MY_VK_ERROR = 1,
-    MY_RUNTIME_ERROR = 2
+    MY_RUNTIME_ERROR = 2,
+    MY_GET_PHYSICAL_ERROR = 3
 };
 
 const std::vector<const char*> validationLayers = {
     "VK_LAYER_KHRONOS_validation"
 };
 
-#ifdef DEBUG
+#ifdef NDEBUG
 const bool enableValidationLayers = false;
 #else
 const bool enableValidationLayers = true;
@@ -26,6 +29,15 @@ VkResult CreateDebugUtilsMessengerEXT(VkInstance instance,
     const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
     const VkAllocationCallbacks* pAllocator,
     VkDebugUtilsMessengerEXT* pCallback);
+
+struct QueueFamilyIndices
+{
+    std::optional<uint32_t> graphicsFamily;
+    bool isComplete()
+    {
+        return graphicsFamily.has_value();
+    }
+};
 
 class HelloTriangleApplication
 {
@@ -48,6 +60,10 @@ private:
     void mainLoop();
     void cleanup();
     vk_info createInstance();
+    //pyhsical
+    vk_info pickPhysicalDevice();
+    bool isDeviceSuitable(VkPhysicalDevice device);
+    QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
 
     //DEBUG
     VkDebugUtilsMessengerEXT debugMessenger;
@@ -69,4 +85,5 @@ private:
     VkInstance instance;
     const int WIDTH = 800;
     const int HEIGHT = 600;
+    VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
 };

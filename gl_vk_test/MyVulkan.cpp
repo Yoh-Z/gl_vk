@@ -12,10 +12,26 @@ void HelloTriangleApplication::initWindow()
 vk_info HelloTriangleApplication::initVulkan()
 {
     vk_info ret = createInstance();
-    if (ret != MY_VK_SUCCESS) return ret;
+    if (ret != MY_VK_SUCCESS)
+    {
+        printf("create insteance failed!");
+        return ret;
+    }
 
     ret = setupDebugCallback();
-    if (ret != MY_VK_SUCCESS) return ret;
+    if (ret != MY_VK_SUCCESS)
+    {
+        printf("set up debug call back failed!");
+        return ret;
+    }
+
+    ret = pickPhysicalDevice();
+    if (ret != MY_VK_SUCCESS)
+    {
+        printf("pick physical device failed");
+        return ret;
+    }
+
 
     return ret;
 }
@@ -152,6 +168,67 @@ void HelloTriangleApplication::populateDebugMessengerCreateInfo(VkDebugUtilsMess
     createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
     createInfo.pfnUserCallback = debugCallback;
 }
+
+vk_info HelloTriangleApplication::pickPhysicalDevice()
+{
+    uint32_t deviceCount = 0;
+    vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
+    if (deviceCount == 0)
+    {
+        printf("failed to find GPUs with Vulkan support");
+        return MY_GET_PHYSICAL_ERROR;
+    }
+
+    std::vector<VkPhysicalDevice> devices(deviceCount);
+    vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
+
+    for (const auto& device : devices)
+    {
+        if (isDeviceSuitable(device))
+        {
+            physicalDevice = device;
+            break;
+        }
+    }
+
+    if (physicalDevice == VK_NULL_HANDLE)
+    {
+        printf("failed to find a suitable GPU");
+        return MY_GET_PHYSICAL_ERROR;
+    }
+    return MY_VK_SUCCESS;
+}
+
+bool HelloTriangleApplication::isDeviceSuitable(VkPhysicalDevice device)
+{
+    QueueFamilyIndices indices = findQueueFamilies(device);
+
+    return indices.isComplete();
+}
+
+QueueFamilyIndices HelloTriangleApplication::findQueueFamilies(VkPhysicalDevice device)
+{
+    QueueFamilyIndices indices;
+
+    uint32_t queueFamilyCount = 0;
+    vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+    std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+    vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
+
+    for (int i = 0; i < queueFamilies.size(); i++)
+    {
+        if (queueFamilies[i].queueCount > 0 && queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
+        {
+            indices.graphicsFamily = i;
+        }
+
+        if (indices.isComplete())
+            break;
+    }
+
+    return indices;
+}
+
 
 VkResult CreateDebugUtilsMessengerEXT(VkInstance instance,
     const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
