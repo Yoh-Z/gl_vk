@@ -12,7 +12,8 @@ typedef enum vk_info
     MY_VK_SUCCESS = 0,
     MY_VK_ERROR = 1,
     MY_RUNTIME_ERROR = 2,
-    MY_GET_PHYSICAL_ERROR = 3
+    MY_GET_PHYSICAL_ERROR = 3,
+    MY_CREATE_DEVICE_ERROR = 4
 };
 
 const std::vector<const char*> validationLayers = {
@@ -60,10 +61,12 @@ private:
     void mainLoop();
     void cleanup();
     vk_info createInstance();
-    //pyhsical
+    //pyhsicalDevice
     vk_info pickPhysicalDevice();
     bool isDeviceSuitable(VkPhysicalDevice device);
     QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
+    //logicalDevice
+    vk_info createLogicalDevice();
 
     //DEBUG
     VkDebugUtilsMessengerEXT debugMessenger;
@@ -80,10 +83,13 @@ private:
         return VK_FALSE;
     }
     vk_info setupDebugCallback();
+    void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator);
 
     GLFWwindow* window;
     VkInstance instance;
     const int WIDTH = 800;
     const int HEIGHT = 600;
     VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+    VkDevice device;
+    VkQueue graphicsQueue;
 };
