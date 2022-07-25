@@ -13,7 +13,8 @@ typedef enum vk_info
     MY_VK_ERROR = 1,
     MY_RUNTIME_ERROR = 2,
     MY_GET_PHYSICAL_ERROR = 3,
-    MY_CREATE_DEVICE_ERROR = 4
+    MY_CREATE_DEVICE_ERROR = 4,
+    MY_CREATE_SURFACE_ERROR = 5
 };
 
 const std::vector<const char*> validationLayers = {
@@ -34,9 +35,10 @@ VkResult CreateDebugUtilsMessengerEXT(VkInstance instance,
 struct QueueFamilyIndices
 {
     std::optional<uint32_t> graphicsFamily;
+    std::optional<uint32_t> presentFamily;
     bool isComplete()
     {
-        return graphicsFamily.has_value();
+        return graphicsFamily.has_value() && presentFamily.has_value();
     }
 };
 
@@ -67,6 +69,8 @@ private:
     QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
     //logicalDevice
     vk_info createLogicalDevice();
+    //createSurface
+    vk_info createSurface();
 
     //DEBUG
     VkDebugUtilsMessengerEXT debugMessenger;
@@ -92,4 +96,6 @@ private:
     VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
     VkDevice device;
     VkQueue graphicsQueue;
+    VkQueue presentQueue;
+    VkSurfaceKHR surface;
 };
