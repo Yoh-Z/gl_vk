@@ -15,7 +15,8 @@ typedef enum vk_info
     MY_GET_PHYSICAL_ERROR = 3,
     MY_CREATE_DEVICE_ERROR = 4,
     MY_CREATE_SURFACE_ERROR = 5,
-    MY_CREATE_SWAP_CHAIN_ERROR = 6
+    MY_CREATE_SWAP_CHAIN_ERROR = 6,
+    MY_CREATE_IMAGE_VIEWS_ERROR = 7
 };
 
 const std::vector<const char*> deviceExtensions = {
@@ -89,6 +90,8 @@ private:
     VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
     VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
     vk_info createSwapChain();
+    //imageView
+    vk_info createImageViews();
 
     //DEBUG
     VkDebugUtilsMessengerEXT debugMessenger;
@@ -121,4 +124,6 @@ private:
     std::vector<VkImage> swapChainImages;
     VkFormat swapChainImageFormat;
     VkExtent2D swapChainExtent;
+
+    std::vector<VkImageView> swapChainImageViews;
 };
