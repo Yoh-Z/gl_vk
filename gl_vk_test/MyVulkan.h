@@ -39,6 +39,9 @@ VkResult CreateDebugUtilsMessengerEXT(VkInstance instance,
     const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
     const VkAllocationCallbacks* pAllocator,
     VkDebugUtilsMessengerEXT* pCallback);
+void DestroyDebugUtilsMessengerEXT(VkInstance instance,
+    VkDebugUtilsMessengerEXT debugMessenger,
+    const VkAllocationCallbacks* pAllocator);
 
 struct QueueFamilyIndices
 {
@@ -115,7 +118,6 @@ private:
         return VK_FALSE;
     }
     vk_info setupDebugCallback();
-    void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator);
 
     GLFWwindow* window;
     VkInstance instance;
