@@ -1,5 +1,6 @@
 #include "MyVulkan.h"
 #include <set>
+#include <fstream>
 
 VkResult CreateDebugUtilsMessengerEXT(VkInstance instance,
     const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
@@ -15,6 +16,23 @@ VkResult CreateDebugUtilsMessengerEXT(VkInstance instance,
     {
         return VK_ERROR_EXTENSION_NOT_PRESENT;
     }
+}
+
+static vk_info readFile(const std::string& filename, std::vector<char>& data)
+{
+    std::ifstream file(filename, std::ios::ate | std::ios::binary);
+
+    if (!file.is_open())
+    {
+        return MY_OPEN_FILE_ERROR;
+    }
+    size_t fileSize = (size_t)file.tellg();
+    data.resize(fileSize);
+    file.seekg(0);
+    file.read(data.data(), fileSize);
+    file.close();
+
+    return MY_VK_SUCCESS;
 }
 
 void HelloTriangleApplication::initWindow()
@@ -74,6 +92,13 @@ vk_info HelloTriangleApplication::initVulkan()
     if (ret != MY_VK_SUCCESS)
     {
         printf("create image views failed");
+        return ret;
+    }
+
+    ret = createGraphicsPipline();
+    if (ret != MY_VK_SUCCESS)
+    {
+        printf("create graphics pipeline failed");
         return ret;
     }
 
@@ -563,6 +588,74 @@ vk_info HelloTriangleApplication::createImageViews()
         {
             return MY_CREATE_IMAGE_VIEWS_ERROR;
         }
+    }
+
+    return MY_VK_SUCCESS;
+}
+
+vk_info HelloTriangleApplication::createGraphicsPipline()
+{
+    std::vector<char> vertShader, fragShader;
+    
+    vk_info ret = readFile("../shader/vert.spv", vertShader);
+    if (ret != MY_VK_SUCCESS)
+    {
+        printf("read vert.spv failed");
+        return ret;
+    }
+    
+    ret = readFile("../shader/frag.spv", fragShader);
+    if (ret != MY_VK_SUCCESS)
+    {
+        printf("read frag.spv failed");
+        return ret;
+    }
+
+    VkShaderModule vertShaderModule, fragShaderModule;
+    ret = createShaderModule(vertShader, vertShaderModule);
+    if (ret != MY_VK_SUCCESS)
+    {
+        printf("create vert shader module failed");
+        return ret;
+    }
+
+    ret = createShaderModule(fragShader, fragShaderModule);
+    if (ret != MY_VK_SUCCESS)
+    {
+        printf("create frag shader module failed");
+        return ret;
+    }
+
+    VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
+    vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
+    vertShaderStageInfo.module = vertShaderModule;
+    vertShaderStageInfo.pName = "main";
+
+    VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
+    fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+    fragShaderStageInfo.module = fragShaderModule;
+    fragShaderStageInfo.pName = "main";
+
+    VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
+
+    vkDestroyShaderModule(device, vertShaderModule, nullptr);
+    vkDestroyShaderModule(device, fragShaderModule, nullptr);
+
+    return MY_VK_SUCCESS;
+}
+
+vk_info HelloTriangleApplication::createShaderModule(const std::vector<char>& code, VkShaderModule& t_shaderModule)
+{
+    VkShaderModuleCreateInfo createInfo = {};
+    createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+    createInfo.codeSize = code.size();
+    createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
+
+    if (vkCreateShaderModule(device, &createInfo, nullptr, &t_shaderModule) != VK_SUCCESS)
+    {
+        return MY_CREATE_SHADER_MODULE_ERROR;
     }
 
     return MY_VK_SUCCESS;

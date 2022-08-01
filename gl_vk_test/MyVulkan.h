@@ -16,7 +16,9 @@ typedef enum vk_info
     MY_CREATE_DEVICE_ERROR = 4,
     MY_CREATE_SURFACE_ERROR = 5,
     MY_CREATE_SWAP_CHAIN_ERROR = 6,
-    MY_CREATE_IMAGE_VIEWS_ERROR = 7
+    MY_CREATE_IMAGE_VIEWS_ERROR = 7,
+    MY_OPEN_FILE_ERROR = 8,
+    MY_CREATE_SHADER_MODULE_ERROR = 9
 };
 
 const std::vector<const char*> deviceExtensions = {
@@ -92,6 +94,11 @@ private:
     vk_info createSwapChain();
     //imageView
     vk_info createImageViews();
+    //graphicsPipeline
+    vk_info createGraphicsPipline();
+    //shaderModule
+    vk_info createShaderModule(const std::vector<char>& code, VkShaderModule& t_shaderModule);
+    
 
     //DEBUG
     VkDebugUtilsMessengerEXT debugMessenger;
