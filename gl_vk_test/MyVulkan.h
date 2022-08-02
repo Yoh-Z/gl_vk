@@ -18,7 +18,8 @@ typedef enum vk_info
     MY_CREATE_SWAP_CHAIN_ERROR = 6,
     MY_CREATE_IMAGE_VIEWS_ERROR = 7,
     MY_OPEN_FILE_ERROR = 8,
-    MY_CREATE_SHADER_MODULE_ERROR = 9
+    MY_CREATE_SHADER_MODULE_ERROR = 9,
+    MY_CREATE_PIPELINE_LAYOUT_ERROR = 10
 };
 
 const std::vector<const char*> deviceExtensions = {
@@ -135,4 +136,6 @@ private:
     VkExtent2D swapChainExtent;
 
     std::vector<VkImageView> swapChainImageViews;
+
+    VkPipelineLayout pipelineLayout;
 };
