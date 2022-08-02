@@ -105,6 +105,13 @@ vk_info HelloTriangleApplication::initVulkan()
         return ret;
     }
 
+    ret = createRenderPass();
+    if (ret != MY_VK_SUCCESS)
+    {
+        printf("create render pass failed");
+        return ret;
+    }
+
     ret = createGraphicsPipline();
     if (ret != MY_VK_SUCCESS)
     {
@@ -112,10 +119,10 @@ vk_info HelloTriangleApplication::initVulkan()
         return ret;
     }
 
-    ret = createRenderPass();
+    ret = createFramebuffers();
     if (ret != MY_VK_SUCCESS)
     {
-        printf("create render pass failed");
+        printf("create frame buffers failed");
         return ret;
     }
 
@@ -134,6 +141,12 @@ void HelloTriangleApplication::mainLoop()
 
 void HelloTriangleApplication::cleanup()
 {
+    for (auto framebuffer : swapChainFramebuffers)
+    {
+        vkDestroyFramebuffer(device, framebuffer, nullptr);
+    }
+
+    vkDestroyPipeline(device, graphicsPipeline, nullptr);
     vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
     vkDestroyRenderPass(device, renderPass, nullptr);
 
@@ -743,6 +756,27 @@ vk_info HelloTriangleApplication::createGraphicsPipline()
         return MY_CREATE_PIPELINE_LAYOUT_ERROR;
     }
 
+    VkGraphicsPipelineCreateInfo pipelineInfo = {};
+    pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+    pipelineInfo.stageCount = 2;
+    pipelineInfo.pStages = shaderStages;
+    pipelineInfo.pVertexInputState = &vertexInputInfo;
+    pipelineInfo.pInputAssemblyState = &inputAssembly;
+    pipelineInfo.pViewportState = &viewportState;
+    pipelineInfo.pRasterizationState = &rasterizer;
+    pipelineInfo.pMultisampleState = &multisampling;
+    pipelineInfo.pDepthStencilState = nullptr;
+    pipelineInfo.pColorBlendState = &colorBlending;
+    pipelineInfo.pDynamicState = nullptr;
+    pipelineInfo.layout = pipelineLayout;
+    pipelineInfo.renderPass = renderPass;
+    pipelineInfo.subpass = 0;
+
+    if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS)
+    {
+        return MY_CREATE_GRAPHICS_PIPELINE_FAILED;
+    }
+
     vkDestroyShaderModule(device, vertShaderModule, nullptr);
     vkDestroyShaderModule(device, fragShaderModule, nullptr);
 
@@ -800,3 +834,30 @@ vk_info HelloTriangleApplication::createRenderPass()
 
     return MY_VK_SUCCESS;
 }
+
+vk_info HelloTriangleApplication::createFramebuffers()
+{
+    swapChainFramebuffers.resize(swapChainImageViews.size());
+
+    for (size_t i = 0; i < swapChainImageViews.size(); i++)
+    {
+        VkImageView attachments[] = { swapChainImageViews[i] };
+
+        VkFramebufferCreateInfo framebufferInfo = {};
+        framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+        framebufferInfo.renderPass = renderPass;
+        framebufferInfo.attachmentCount = 1;
+        framebufferInfo.pAttachments = attachments;
+        framebufferInfo.width = swapChainExtent.width;
+        framebufferInfo.height = swapChainExtent.height;
+        framebufferInfo.layers = 1;
+
+        if (vkCreateFramebuffer(device, &framebufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS)
+        {
+            return MY_CREATE_FRAME_BUFFER_ERROR;
+        }
+    }
+
+    return MY_VK_SUCCESS;
+}
+

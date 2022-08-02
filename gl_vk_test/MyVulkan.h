@@ -20,7 +20,9 @@ typedef enum vk_info
     MY_OPEN_FILE_ERROR = 8,
     MY_CREATE_SHADER_MODULE_ERROR = 9,
     MY_CREATE_PIPELINE_LAYOUT_ERROR = 10,
-    MY_CREATE_RENDER_PASS_ERROR = 11
+    MY_CREATE_RENDER_PASS_ERROR = 11,
+    MY_CREATE_GRAPHICS_PIPELINE_FAILED = 12,
+    MY_CREATE_FRAME_BUFFER_ERROR = 13
 };
 
 const std::vector<const char*> deviceExtensions = {
@@ -105,6 +107,8 @@ private:
     vk_info createShaderModule(const std::vector<char>& code, VkShaderModule& t_shaderModule);
     //render
     vk_info createRenderPass();
+    //framebuffers
+    vk_info createFramebuffers();
     
 
     //DEBUG
@@ -139,7 +143,10 @@ private:
     VkExtent2D swapChainExtent;
 
     std::vector<VkImageView> swapChainImageViews;
+    std::vector<VkFramebuffer> swapChainFramebuffers;
 
     VkPipelineLayout pipelineLayout;
     VkRenderPass renderPass;
+
+    VkPipeline graphicsPipeline;
 };
