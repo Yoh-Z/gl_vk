@@ -19,7 +19,8 @@ typedef enum vk_info
     MY_CREATE_IMAGE_VIEWS_ERROR = 7,
     MY_OPEN_FILE_ERROR = 8,
     MY_CREATE_SHADER_MODULE_ERROR = 9,
-    MY_CREATE_PIPELINE_LAYOUT_ERROR = 10
+    MY_CREATE_PIPELINE_LAYOUT_ERROR = 10,
+    MY_CREATE_RENDER_PASS_ERROR = 11
 };
 
 const std::vector<const char*> deviceExtensions = {
@@ -102,6 +103,8 @@ private:
     vk_info createGraphicsPipline();
     //shaderModule
     vk_info createShaderModule(const std::vector<char>& code, VkShaderModule& t_shaderModule);
+    //render
+    vk_info createRenderPass();
     
 
     //DEBUG
@@ -138,4 +141,5 @@ private:
     std::vector<VkImageView> swapChainImageViews;
 
     VkPipelineLayout pipelineLayout;
+    VkRenderPass renderPass;
 };
