@@ -25,7 +25,9 @@ typedef enum vk_info
     MY_CREATE_FRAME_BUFFER_ERROR = 13,
     MY_CREATE_COMMAND_POOL_ERROR = 14,
     MY_CREATE_COMMAND_BUFFERS_ERROR = 15,
-    MY_BEGIN_RECORDING_COMMAND_BUFFER_ERROR = 16
+    MY_BEGIN_RECORDING_COMMAND_BUFFER_ERROR = 16,
+    MY_CREATE_SEMAPHORES_ERROR = 17,
+    MY_SUBMIT_DRAW_COMMAND_BUFFER_ERROR = 18
 };
 
 const std::vector<const char*> deviceExtensions = {
@@ -108,7 +110,7 @@ private:
     vk_info createGraphicsPipline();
     //shaderModule
     vk_info createShaderModule(const std::vector<char>& code, VkShaderModule& t_shaderModule);
-    //render
+    //createRender
     vk_info createRenderPass();
     //framebuffers
     vk_info createFramebuffers();
@@ -116,6 +118,10 @@ private:
     vk_info createCommandPool();
     vk_info createCommandBuffers();
     vk_info recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
+    //createSemaphore
+    vk_info createSemaphores();
+    //render&draw
+    vk_info drawFrame();
 
     
 
@@ -153,11 +159,15 @@ private:
 
     std::vector<VkImageView> swapChainImageViews;
     std::vector<VkFramebuffer> swapChainFramebuffers;
-    std::vector<VkCommandBuffer> commandBuffers;
+    //std::vector<VkCommandBuffer> commandBuffers;
+    VkCommandBuffer commandBuffer;
 
     VkPipelineLayout pipelineLayout;
     VkRenderPass renderPass;
 
     VkPipeline graphicsPipeline;
     VkCommandPool commandPool;
+
+    VkSemaphore imageAvailableSemaphore;
+    VkSemaphore renderFinishedSemaphore;
 };
