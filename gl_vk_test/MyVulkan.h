@@ -22,7 +22,10 @@ typedef enum vk_info
     MY_CREATE_PIPELINE_LAYOUT_ERROR = 10,
     MY_CREATE_RENDER_PASS_ERROR = 11,
     MY_CREATE_GRAPHICS_PIPELINE_FAILED = 12,
-    MY_CREATE_FRAME_BUFFER_ERROR = 13
+    MY_CREATE_FRAME_BUFFER_ERROR = 13,
+    MY_CREATE_COMMAND_POOL_ERROR = 14,
+    MY_CREATE_COMMAND_BUFFERS_ERROR = 15,
+    MY_BEGIN_RECORDING_COMMAND_BUFFER_ERROR = 16
 };
 
 const std::vector<const char*> deviceExtensions = {
@@ -109,6 +112,11 @@ private:
     vk_info createRenderPass();
     //framebuffers
     vk_info createFramebuffers();
+    //commandPool
+    vk_info createCommandPool();
+    vk_info createCommandBuffers();
+    vk_info recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
+
     
 
     //DEBUG
@@ -138,15 +146,18 @@ private:
     VkSurfaceKHR surface;
 
     VkSwapchainKHR swapChain;
-    std::vector<VkImage> swapChainImages;
     VkFormat swapChainImageFormat;
     VkExtent2D swapChainExtent;
 
+    std::vector<VkImage> swapChainImages;
+
     std::vector<VkImageView> swapChainImageViews;
     std::vector<VkFramebuffer> swapChainFramebuffers;
+    std::vector<VkCommandBuffer> commandBuffers;
 
     VkPipelineLayout pipelineLayout;
     VkRenderPass renderPass;
 
     VkPipeline graphicsPipeline;
+    VkCommandPool commandPool;
 };
